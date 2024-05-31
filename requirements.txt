@@ -1,0 +1,7 @@
+ streamlit 
+ pandas 
+ seaborn 
+ matplotlib.pyplot
+plotly.express 
+sqlalchemy
+base64
