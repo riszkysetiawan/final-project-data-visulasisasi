@@ -1,0 +1,25 @@
+
+
+.sidebar-logo {
+    display: flex;
+    align-items: center;
+}
+
+.sidebar-logo img {
+    margin-right: 10px;
+}
+
+.sidebar-logo h2 {
+    margin: 0;
+}
+
+.footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background-color: #f1f1f1;
+    text-align: center;
+    padding: 10px;
+    font-size: 14px;
+}
