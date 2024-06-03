@@ -48,6 +48,9 @@ selected_years = st.sidebar.multiselect('Select years', [str(year) for year in r
 selected_region = st.sidebar.multiselect('Select Sales Territory Region', 
                                          ['Australia', 'Canada', 'France', 'Germany', 'Northwest', 'Southwest', 'United Kingdom'])
 
+# Filter for scatter plot
+price_range = st.sidebar.slider('Select List Price Range', 0, 1000, (0, 1000))
+
 # Grafik 1
 def visualize_sales_composition(selected_region, selected_years):
     query = '''
@@ -81,6 +84,8 @@ def visualize_sales_composition(selected_region, selected_years):
     fig.update_layout(xaxis_title='Date', yaxis_title='Percentage of Total Sales', legend_title='Sales Territory Region')
     st.plotly_chart(fig)
 
+    st.markdown("**Sales Composition by Territory Over Time**: Grafik ini menunjukkan komposisi penjualan berdasarkan wilayah penjualan dari waktu ke waktu. Anda dapat melihat bagaimana kontribusi penjualan dari setiap wilayah berubah seiring waktu.")
+
 # Grafik 2
 def visualize_data_distribution():
     query = '''
@@ -109,6 +114,8 @@ def visualize_data_distribution():
     ax.set_ylabel('Density')
     st.pyplot(fig)
 
+    st.markdown("**Data Distribution of Total Sales**: Grafik ini menampilkan distribusi total penjualan. Anda dapat melihat bagaimana penjualan didistribusikan dalam berbagai rentang nilai.")
+
 # Grafik 3
 def visualize_total_sales_over_time(selected_years):
     query = '''
@@ -136,8 +143,10 @@ def visualize_total_sales_over_time(selected_years):
     fig.update_layout(xaxis_title='Date', yaxis_title='Total Sales')
     st.plotly_chart(fig)
 
+    st.markdown("**Total Sales Over Time**: Grafik ini menunjukkan total penjualan dari waktu ke waktu. Grafik ini membantu Anda untuk memahami tren penjualan selama periode waktu tertentu.")
+
 # Grafik 4
-def visualize_scatter_plot():
+def visualize_scatter_plot(price_range):
     query = '''
     SELECT p.ListPrice, SUM(s.OrderQuantity) AS TotalQuantity
     FROM factinternetsales s
@@ -146,9 +155,18 @@ def visualize_scatter_plot():
     '''
     df = run_query(query)
     
+    # Filter by price range
+    df = df[(df['ListPrice'] >= price_range[0]) & (df['ListPrice'] <= price_range[1])]
+
+    if df.empty:
+        st.warning('No data available for the selected price range.')
+        return
+
     fig = px.scatter(df, x='ListPrice', y='TotalQuantity', color='TotalQuantity', title='Scatter Plot of Product List Price vs. Total Order Quantity')
     fig.update_layout(xaxis_title='List Price', yaxis_title='Total Order Quantity')
     st.plotly_chart(fig)
+
+    st.markdown("**Scatter Plot of Product List Price vs. Total Order Quantity**: Grafik ini menunjukkan hubungan antara harga jual produk dan jumlah total pesanan. Grafik ini membantu Anda memahami bagaimana harga produk mempengaruhi jumlah pesanan yang diterima.")
 
 # Streamlit 
 st.title('Dashboard Data Warehouse')
@@ -163,7 +181,7 @@ st.header('Total Sales Over Time')
 visualize_total_sales_over_time(selected_years)
 
 st.header('Scatter Plot of Product List Price vs. Total Order Quantity')
-visualize_scatter_plot()
+visualize_scatter_plot(price_range)
 
 # Sidebar
 with st.sidebar.expander("Information", expanded=True):
