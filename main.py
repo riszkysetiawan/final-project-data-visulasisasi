@@ -1,7 +1,5 @@
 import streamlit as st
 import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
 import plotly.express as px
 from sqlalchemy import create_engine
 import base64
@@ -42,7 +40,8 @@ def load_css(file_name):
 load_css("assets/css/style.css")
 
 # Sidebar Filters
-selected_years = st.sidebar.multiselect('Select years', [str(year) for year in range(2001, 2005)])
+selected_years = st.sidebar.multiselect('Select years', [year for year in range(2001, 2005)])
+selected_years = list(map(int, selected_years))  # Convert to integers here
 
 # Additional Filters
 selected_region = st.sidebar.multiselect('Select Sales Territory Region', 
@@ -51,40 +50,40 @@ selected_region = st.sidebar.multiselect('Select Sales Territory Region',
 # Filter for scatter plot
 price_range = st.sidebar.slider('Select List Price Range', 0, 1000, (0, 1000))
 
-# Grafik 1
 def visualize_sales_composition(selected_region, selected_years):
     query = '''
-    SELECT st.SalesTerritoryRegion, dt.FullDateAlternateKey, SUM(fi.SalesAmount) as TotalSales
+    SELECT st.SalesTerritoryRegion, YEAR(dt.FullDateAlternateKey) as Year, SUM(fi.SalesAmount) as TotalSales
     FROM factinternetsales fi
     JOIN dimsalesterritory st ON fi.SalesTerritoryKey = st.SalesTerritoryKey
     JOIN dimtime dt ON fi.OrderDateKey = dt.TimeKey
-    GROUP BY st.SalesTerritoryRegion, dt.FullDateAlternateKey
-    ORDER BY dt.FullDateAlternateKey
+    GROUP BY st.SalesTerritoryRegion, YEAR(dt.FullDateAlternateKey)
+    ORDER BY YEAR(dt.FullDateAlternateKey);
     '''
     df = run_query(query)
     
     # filter
-    df['FullDateAlternateKey'] = pd.to_datetime(df['FullDateAlternateKey'])
-    df['Year'] = df['FullDateAlternateKey'].dt.year
     if selected_region:
         df = df[df['SalesTerritoryRegion'].isin(selected_region)]
     if selected_years:
-        df = df[df['Year'].isin(map(int, selected_years))]
-
+        df = df[df['Year'].isin(selected_years)]
+        
     if df.empty:
         st.warning('No data available for the selected filters.')
         return
 
-    df_pivot = df.pivot_table(index='FullDateAlternateKey', columns='SalesTerritoryRegion', values='TotalSales', fill_value=0)
-    df_percent = df_pivot.div(df_pivot.sum(axis=1), axis=0).reset_index()
-    df_long = pd.melt(df_percent, id_vars=['FullDateAlternateKey'], var_name='SalesTerritoryRegion', value_name='Percentage')
+    df['Year'] = df['Year'].astype(str)  # Ensure year is treated as a category
 
-    fig = px.area(df_long, x='FullDateAlternateKey', y='Percentage', color='SalesTerritoryRegion', 
-                  title='Sales Composition by Territory Over Time')
-    fig.update_layout(xaxis_title='Date', yaxis_title='Percentage of Total Sales', legend_title='Sales Territory Region')
+    # Create stacked column chart
+    fig = px.bar(df, x='Year', y='TotalSales', color='SalesTerritoryRegion', 
+                 title='Sales Composition by Territory Over Time', 
+                 labels={'TotalSales': 'Total Sales', 'Year': 'Year', 'SalesTerritoryRegion': 'Sales Territory Region'},
+                 barmode='stack')
+
+    fig.update_layout(xaxis=dict(type='category'))  # Ensure x-axis is treated as categorical
+
     st.plotly_chart(fig)
 
-    st.markdown("**Sales Composition by Territory Over Time**: Grafik ini menunjukkan komposisi penjualan berdasarkan wilayah penjualan dari waktu ke waktu. Anda dapat melihat bagaimana kontribusi penjualan dari setiap wilayah berubah seiring waktu.")
+    st.markdown("**Sales Composition by Territory Over Time**: This stacked column chart shows the composition of sales by sales territory over time. You can see how the sales contribution from each territory changes over time.")
 
 # Grafik 2
 def visualize_data_distribution():
@@ -107,12 +106,9 @@ def visualize_data_distribution():
         st.warning('No data available for the selected filters.')
         return
 
-    fig, ax = plt.subplots()
-    sns.histplot(df['TotalSales'], kde=True, ax=ax, color='teal')
-    ax.set_title('Data Distribution of Total Sales')
-    ax.set_xlabel('Total Sales')
-    ax.set_ylabel('Density')
-    st.pyplot(fig)
+    fig = px.histogram(df, x='TotalSales', nbins=50, title='Data Distribution of Total Sales', marginal="rug")
+    fig.update_layout(xaxis_title='Total Sales', yaxis_title='Jumlah Transaksi Dilakukan')
+    st.plotly_chart(fig)
 
     st.markdown("**Data Distribution of Total Sales**: Grafik ini menampilkan distribusi total penjualan. Anda dapat melihat bagaimana penjualan didistribusikan dalam berbagai rentang nilai.")
 
