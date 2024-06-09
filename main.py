@@ -15,8 +15,7 @@ st.set_page_config(page_title="Dashboard Data Warehouse", page_icon=favicon)
 
 # Koneksi ke database MySQL
 def run_query(query):
-    secrets = st.secrets["connections.mydb"]
-    engine = create_engine(f'{secrets["dialect"]}+{secrets["driver"]}://{secrets["username"]}:{secrets["password"]}@{secrets["host"]}:{secrets["port"]}/{secrets["database"]}')
+    engine = create_engine('mysql+pymysql://davis2024irwan:wh451n9m@ch1n3@kubela.id:3306/aw')
     df = pd.read_sql(query, engine)
     return df
 
@@ -39,7 +38,6 @@ def load_css(file_name):
         st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
 load_css("assets/css/style.css")
-
 # Sidebar Filters
 selected_years = st.sidebar.multiselect('Select years', [year for year in range(2001, 2005)])
 selected_years = list(map(int, selected_years))  # Convert to integers here
