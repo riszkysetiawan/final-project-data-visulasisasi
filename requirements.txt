@@ -5,3 +5,4 @@
 plotly.express 
 sqlalchemy
 base64
+plotly.express
