@@ -4,9 +4,12 @@ import plotly.express as px
 from sqlalchemy import create_engine
 import base64
 
+# Load secrets
+secrets = st.secrets["connections.mydb"]
+
 # Koneksi ke database MySQL
 def run_query(query):
-    engine = create_engine(st.secrets["connections.mydb"])
+    engine = create_engine(f"mysql+pymysql://{secrets['username']}:{secrets['password']}@{secrets['host']}:{secrets['port']}/{secrets['database']}")
     df = pd.read_sql(query, engine)
     return df
 
