@@ -3,6 +3,7 @@ import pandas as pd
 import plotly.express as px
 from sqlalchemy import create_engine
 import base64
+import mysql.connector
 
 def get_base64_image(image_path):
     with open(image_path, "rb") as img_file:
@@ -15,8 +16,18 @@ st.set_page_config(page_title="Dashboard Data Warehouse", page_icon=favicon)
 
 # Koneksi ke database MySQL
 def run_query(query):
-    engine = create_engine('mysql+pymysql://davis2024irwan:wh451n9m@ch1n3@kubela.id:3306/aw')
-    df = pd.read_sql(query, engine)
+    conn = mysql.connector.connect(
+        host="kubela.id",
+        user="davis2024irwan",
+        password="wh451n9m@ch1n3",
+        database="aw"
+    )
+    cursor = conn.cursor()
+    cursor.execute(query)
+    columns = [col[0] for col in cursor.description]
+    data = cursor.fetchall()
+    df = pd.DataFrame(data, columns=columns)
+    conn.close()
     return df
 
 blu_base64 = get_base64_image("assets/img/blu.png")
