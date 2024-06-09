@@ -4,3 +4,4 @@ plotly
 plotly-express
 SQLAlchemy
 pybase64
+pymysql
