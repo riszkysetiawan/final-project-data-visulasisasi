@@ -1,8 +1,8 @@
  streamlit 
  pandas 
  seaborn 
- matplotlib.pyplot
-plotly.express 
+ matplotlib
+plotly 
 sqlalchemy
 base64
 plotly.express
