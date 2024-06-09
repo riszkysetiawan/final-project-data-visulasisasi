@@ -15,7 +15,16 @@ st.set_page_config(page_title="Dashboard Data Warehouse", page_icon=favicon)
 
 # Koneksi ke database MySQL
 def run_query(query):
-    engine = create_engine('mysql+pymysql://davis2024irwan:wh451n9m@ch1n3@kubela.id:3306/aw')
+    db_connection_str = (
+        f"{st.secrets['connections']['mydb']['dialect']}+"
+        f"{st.secrets['connections']['mydb']['driver']}://"
+        f"{st.secrets['connections']['mydb']['username']}:"
+        f"{st.secrets['connections']['mydb']['password']}@"
+        f"{st.secrets['connections']['mydb']['host']}:"
+        f"{st.secrets['connections']['mydb']['port']}/"
+        f"{st.secrets['connections']['mydb']['database']}"
+    )
+    engine = create_engine(db_connection_str)
     df = pd.read_sql(query, engine)
     return df
 
@@ -181,21 +190,4 @@ visualize_scatter_plot(price_range)
 
 # Sidebar
 with st.sidebar.expander("Information", expanded=True):
-    st.write("This dashboard allows you to visualize sales data from a data warehouse. You can filter the data by year and sales territory region to see different visualizations.")
-    st.write("The visualizations include:")
-    st.write("- Sales Composition by Territory Over Time")
-    st.write("- Data Distribution of Total Sales")
-    st.write("- Total Sales Over Time")
-    st.write("- Scatter Plot of Product List Price vs. Total Order Quantity")
-    st.write("Use the filters on the left sidebar to customize the visualizations.")
-
-# Add footer
-def add_footer():
-    footer = """
-    <div class="footer">
-        <p>Created By| <a href="https://www.linkedin.com/in/moch-rezeki-setiawan/"> Moch Rezeki Setiawan </a>© 2024 All Rights Reserved</p>
-    </div>
-    """
-    st.markdown(footer, unsafe_allow_html=True)
-
-add_footer()
+    st.write("This dashboard allows you to visualize sales data from a data warehouse. You can filter the data by year and sales territory region to see different aspects of the data.")
