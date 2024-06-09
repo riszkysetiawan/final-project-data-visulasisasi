@@ -15,7 +15,7 @@ st.set_page_config(page_title="Dashboard Data Warehouse", page_icon=favicon)
 
 # Koneksi ke database MySQL
 def run_query(query):
-    engine = create_engine('mysql+pymysql://davis2024irwan:wh451n9m@ch1n3@kubela.id:3306/aw')
+    engine = create_engine('mysql+pymysql://root:@localhost:3306/dump_dw-aw')
     df = pd.read_sql(query, engine)
     return df
 
@@ -32,7 +32,7 @@ st.sidebar.markdown(
     unsafe_allow_html=True
 )
 
-# CSS
+#css
 def load_css(file_name):
     with open(file_name) as f:
         st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
