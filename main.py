@@ -7,6 +7,8 @@ import base64
 # Load secrets
 secrets = st.secrets["connections.mydb"]
 
+
+
 # Koneksi ke database MySQL
 def run_query(query):
     engine = create_engine(f"mysql+pymysql://{secrets['username']}:{secrets['password']}@{secrets['host']}:{secrets['port']}/{secrets['database']}")
