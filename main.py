@@ -4,21 +4,40 @@ import plotly.express as px
 from sqlalchemy import create_engine
 import base64
 
-# Load secrets
-secrets = st.secrets["connections.mydb"]
+def get_base64_image(image_path):
+    with open(image_path, "rb") as img_file:
+        return base64.b64encode(img_file.read()).decode()
 
+upn_base64 = get_base64_image("assets/img/upn.png")
+favicon = f"data:image/png;base64,{upn_base64}"
 
+st.set_page_config(page_title="Dashboard Data Warehouse", page_icon=favicon)
 
 # Koneksi ke database MySQL
 def run_query(query):
-    engine = create_engine(f"mysql+pymysql://{secrets['username']}:{secrets['password']}@{secrets['host']}:{secrets['port']}/{secrets['database']}")
+    engine = create_engine('mysql+pymysql://root:@localhost:3306/dump_dw-aw')
     df = pd.read_sql(query, engine)
     return df
 
-# CSS
+blu_base64 = get_base64_image("assets/img/blu.png")
+
+st.sidebar.markdown(
+    f"""
+    <div class="sidebar-logo">
+        <img src="data:image/png;base64,{upn_base64}" width="50">
+        <img src="data:image/png;base64,{blu_base64}" width="50">
+        <h2>Dashboard Data Warehouse</h2>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+#css
 def load_css(file_name):
     with open(file_name) as f:
         st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+
+load_css("assets/css/style.css")
 
 # Sidebar Filters
 selected_years = st.sidebar.multiselect('Select years', [year for year in range(2001, 2005)])
@@ -160,3 +179,23 @@ visualize_total_sales_over_time(selected_years)
 st.header('Scatter Plot of Product List Price vs. Total Order Quantity')
 visualize_scatter_plot(price_range)
 
+# Sidebar
+with st.sidebar.expander("Information", expanded=True):
+    st.write("This dashboard allows you to visualize sales data from a data warehouse. You can filter the data by year and sales territory region to see different visualizations.")
+    st.write("The visualizations include:")
+    st.write("- Sales Composition by Territory Over Time")
+    st.write("- Data Distribution of Total Sales")
+    st.write("- Total Sales Over Time")
+    st.write("- Scatter Plot of Product List Price vs. Total Order Quantity")
+    st.write("Use the filters on the left sidebar to customize the visualizations.")
+
+# Add footer
+def add_footer():
+    footer = """
+    <div class="footer">
+        <p>Created By| <a href="https://www.linkedin.com/in/moch-rezeki-setiawan/"> Moch Rezeki Setiawan </a>© 2024 All Rights Reserved</p>
+    </div>
+    """
+    st.markdown(footer, unsafe_allow_html=True)
+
+add_footer()
