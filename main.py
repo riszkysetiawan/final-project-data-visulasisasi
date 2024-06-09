@@ -15,16 +15,8 @@ st.set_page_config(page_title="Dashboard Data Warehouse", page_icon=favicon)
 
 # Koneksi ke database MySQL
 def run_query(query):
-    db_connection_str = (
-        f"{st.secrets['connections']['mydb']['dialect']}+"
-        f"{st.secrets['connections']['mydb']['driver']}://"
-        f"{st.secrets['connections']['mydb']['username']}:"
-        f"{st.secrets['connections']['mydb']['password']}@"
-        f"{st.secrets['connections']['mydb']['host']}:"
-        f"{st.secrets['connections']['mydb']['port']}/"
-        f"{st.secrets['connections']['mydb']['database']}"
-    )
-    engine = create_engine(db_connection_str)
+    secrets = st.secrets["connections.mydb"]
+    engine = create_engine(f'{secrets["dialect"]}+{secrets["driver"]}://{secrets["username"]}:{secrets["password"]}@{secrets["host"]}:{secrets["port"]}/{secrets["database"]}')
     df = pd.read_sql(query, engine)
     return df
 
