@@ -5,3 +5,4 @@ plotly-express
 SQLAlchemy
 pybase64
 PyMySQL
+mysql-connector-python
