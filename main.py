@@ -1,9 +1,8 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-from sqlalchemy import create_engine
-import base64
 import mysql.connector
+import base64
 
 def get_base64_image(image_path):
     with open(image_path, "rb") as img_file:
@@ -14,13 +13,13 @@ favicon = f"data:image/png;base64,{upn_base64}"
 
 st.set_page_config(page_title="Dashboard Data Warehouse", page_icon=favicon)
 
-# Koneksi ke database MySQL
+# Koneksi ke database MySQL menggunakan secrets
 def run_query(query):
     conn = mysql.connector.connect(
-        host="kubela.id",
-        user="davis2024irwan",
-        password="wh451n9m@ch1n3",
-        database="aw"
+        host=st.secrets["mysql"]["host"],
+        user=st.secrets["mysql"]["user"],
+        password=st.secrets["mysql"]["password"],
+        database=st.secrets["mysql"]["database"]
     )
     cursor = conn.cursor()
     cursor.execute(query)
