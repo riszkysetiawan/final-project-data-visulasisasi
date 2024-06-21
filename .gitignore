@@ -2,7 +2,7 @@
 .venv/
 
 # Ignore the Streamlit configuration folder
-.streamlit/
+.streamlit/secrets.toml
 
 # Ignore environment variable files
 .env
