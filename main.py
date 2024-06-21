@@ -13,14 +13,13 @@ favicon = f"data:image/png;base64,{upn_base64}"
 
 st.set_page_config(page_title="Dashboard Data Warehouse", page_icon=favicon)
 
-# Koneksi ke database MySQL
+# Koneksi ke database MySQL menggunakan secrets
 def run_query(query):
     conn = mysql.connector.connect(
-        host="kubela.id",
-        user="davis2024irwan",
-        password="wh451n9m@ch1n3",
-        database="aw",
-        port=3306
+        host=st.secrets["mysql"]["host"],
+        user=st.secrets["mysql"]["user"],
+        password=st.secrets["mysql"]["password"],
+        database=st.secrets["mysql"]["database"]
     )
     cursor = conn.cursor()
     cursor.execute(query)
@@ -43,13 +42,12 @@ st.sidebar.markdown(
     unsafe_allow_html=True
 )
 
-# CSS
+#css
 def load_css(file_name):
     with open(file_name) as f:
         st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
 load_css("assets/css/style.css")
-
 # Sidebar Filters
 selected_years = st.sidebar.multiselect('Select years', [year for year in range(2001, 2005)])
 selected_years = list(map(int, selected_years))  # Convert to integers here
@@ -134,7 +132,7 @@ def visualize_total_sales_over_time(selected_years):
     '''
     df = run_query(query)
     
-    # filter
+    #filter
     df['FullDateAlternateKey'] = pd.to_datetime(df['FullDateAlternateKey'])
     df['Year'] = df['FullDateAlternateKey'].dt.year
     if selected_years:
